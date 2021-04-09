@@ -9,6 +9,7 @@ import (
 
 	"github.com/justgetahouse0/banho/bancho"
 	"github.com/justgetahouse0/banho/packets"
+	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 func Handler(bancho bancho.Bancho) func(w http.ResponseWriter, r *http.Request) {
@@ -36,8 +37,20 @@ func Handler(bancho bancho.Bancho) func(w http.ResponseWriter, r *http.Request) 
 }
 
 func main() {
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Username: "admin",
+		Password: "scierniskotzndomkukanqa",
+		Database: "prudenit",
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	bancho := bancho.Bancho{
 		Sessions: make(map[string]*bancho.Session),
+		Database: session,
 	}
 	http.HandleFunc("/", Handler(bancho))
 	log.Fatalln(http.ListenAndServeTLS(":443", "cert.pem", "key.pem", nil))
